@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dictate — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     THEME TOKENS
+     Base = "Default Dark" (neutral graphite / indigo)
+     Four named themes layer their own bg / panel / accent triad
+     on top of the same structural system.
+     ============================================================ */
+  :root{
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  }
+
+  [data-theme="default"]{
+    --bg: #1a1b1f;
+    --bg-soft: #202126;
+    --panel: #232429;
+    --panel-2: #26272d;
+    --border: #34363d;
+    --border-soft: #2b2c32;
+    --text: #eceef2;
+    --text-dim: #9b9ea8;
+    --text-faint: #6b6e78;
+    --accent-color: #7c7ff2;
+    --accent-soft: rgba(124,127,242,0.14);
+    --success: #34d399;
+    --danger: #f3706f;
+  }
+
+  [data-theme="navy-gold"]{
+    --bg: #0d1526;
+    --bg-soft: #101b30;
+    --panel: #142038;
+    --panel-2: #16233e;
+    --border: #29385c;
+    --border-soft: #1f2d4c;
+    --text: #f2f0e6;
+    --text-dim: #a6acc4;
+    --text-faint: #6f7590;
+    --accent-color: #d8ae4c;
+    --accent-soft: rgba(216,174,76,0.14);
+    --success: #6fbf8b;
+    --danger: #e07a6b;
+  }
+
+  [data-theme="midnight-orange"]{
+    --bg: #17130f;
+    --bg-soft: #1c1712;
+    --panel: #221b15;
+    --panel-2: #261e17;
+    --border: #3c2f22;
+    --border-soft: #30261b;
+    --text: #f4ede2;
+    --text-dim: #b8a894;
+    --text-faint: #806f5c;
+    --accent-color: #f0703c;
+    --accent-soft: rgba(240,112,60,0.15);
+    --success: #7dbf7a;
+    --danger: #e6604f;
+  }
+
+  [data-theme="deep-aqua"]{
+    --bg: #081b1c;
+    --bg-soft: #0b2223;
+    --panel: #0f2b2c;
+    --panel-2: #113032;
+    --border: #1e4547;
+    --border-soft: #163839;
+    --text: #e6f5f3;
+    --text-dim: #93bcb9;
+    --text-faint: #5f8a87;
+    --accent-color: #2bd4bd;
+    --accent-soft: rgba(43,212,189,0.14);
+    --success: #4fd18a;
+    --danger: #ef7466;
+  }
+
+  [data-theme="charcoal-mint"]{
+    --bg: #1b1e1c;
+    --bg-soft: #202422;
+    --panel: #252a27;
+    --panel-2: #282e2a;
+    --border: #3a4139;
+    --border-soft: #2f352f;
+    --text: #edf3ee;
+    --text-dim: #a4b0a7;
+    --text-faint: #707d73;
+    --accent-color: #4dd186;
+    --accent-soft: rgba(77,209,134,0.14);
+    --success: #58cf8f;
+    --danger: #ea7368;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    background: #08090a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-ui);
+  }
+
+  ::selection{ background: var(--accent-soft); color: var(--text); }
+
+  ::-webkit-scrollbar{ width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+  ::-webkit-scrollbar-thumb{ background: var(--border); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--text-faint); }
+
+  /* ============================================================
+     APP SHELL — resizable window, 450x500 default & minimum
+     ============================================================ */
+  .container{
+    width: 450px;
+    height: 500px;
+    min-width: 450px;
+    min-height: 500px;
+    max-width: 100vw;
+    max-height: 100vh;
+    resize: both;
+    overflow: auto;
+    background: var(--bg);
+    color: var(--text);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    gap: 10px;
+    position: relative;
+  }
+
+  /* subtle resize affordance */
+  .container::after{
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 10px;
+    height: 10px;
+    background:
+      linear-gradient(135deg, transparent 0 40%, var(--text-faint) 40% 46%, transparent 46% 54%, var(--text-faint) 54% 60%, transparent 60%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     TOP BAR
+     ============================================================ */
+  .top-bar{
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .api-group{
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .api-group > label{
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .api-input-wrapper{
+    display: flex;
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 4px 0 10px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .api-input-wrapper:focus-within{
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .api-input-wrapper input{
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+    padding: 7px 0;
+  }
+
+  .api-input-wrapper input::placeholder{ color: var(--text-faint); }
+
+  .icon-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .icon-btn:hover{ background: var(--panel-2); color: var(--text); }
+
+  .save-btn{
+    height: 32px;
+    padding: 0 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--accent-color);
+    color: #16171a;
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.1s ease, background-color 0.2s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .save-btn:hover{ filter: brightness(1.08); }
+  .save-btn:active{ transform: translateY(1px); }
+
+  .status-indicator{
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    cursor: default;
+  }
+
+  .status-dot{
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 0 rgba(52,211,153,0.5);
+  }
+
+  .status-dot.recording{
+    background: var(--danger);
+    animation: pulse-dot 1.4s ease-in-out infinite;
+  }
+
+  .status-dot.processing{
+    background: #e8b64c;
+    animation: spin-dot 0.9s linear infinite;
+  }
+
+  @keyframes pulse-dot{
+    0%, 100%{ box-shadow: 0 0 0 0 rgba(243,112,111,0.45); }
+    50%{ box-shadow: 0 0 0 6px rgba(243,112,111,0); }
+  }
+
+  @keyframes spin-dot{
+    0%{ opacity: 0.35; } 50%{ opacity: 1; } 100%{ opacity: 0.35; }
+  }
+
+  /* ============================================================
+     HINT / ERROR
+     ============================================================ */
+  .hint-text{
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    flex-shrink: 0;
+  }
+
+  .hint-text strong{
+    font-family: var(--font-mono);
+    color: var(--accent-color);
+    background: var(--accent-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .error-box{
+    font-size: 12px;
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 12%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     SETTINGS PANEL
+     ============================================================ */
+  .settings-panel{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .form-group{ display: flex; flex-direction: column; gap: 5px; }
+
+  .form-group > label{
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .form-row{ display: flex; gap: 10px; }
+  .form-group.half{ flex: 1; min-width: 0; }
+
+  select, input[type="text"], input[type="password"]{
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 12.5px;
+    border-radius: var(--radius-sm);
+    padding: 7px 9px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    appearance: none;
+  }
+
+  select{
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239b9ea8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 26px;
+    cursor: pointer;
+  }
+
+  select:focus, input:focus{
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .mic-row{ display: flex; gap: 8px; }
+  .mic-row select{ flex: 1; min-width: 0; }
+
+  .test-btn{
+    flex-shrink: 0;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .test-btn:hover{ border-color: var(--accent-color); color: var(--accent-color); }
+
+  .test-btn.active{
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #16171a;
+  }
+
+  .volume-bar-container{
+    height: 6px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  .volume-bar-fill{
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-color), var(--success));
+    border-radius: 999px;
+    transition: width 0.08s linear;
+  }
+
+  input[list]{ font-family: var(--font-ui); }
+
+  /* theme select gets a small live swatch */
+  .theme-select-wrap{ position: relative; }
+  .theme-swatch{
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    pointer-events: none;
+  }
+  .theme-select-wrap select{ padding-left: 22px; }
+
+  /* shortcut input */
+  #shortcutInput{
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .status-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+
+  .status-badge::before{
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  .status-badge.ok{
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 14%, transparent);
+  }
+  .status-badge.ok::before{ background: var(--success); }
+
+  .status-badge.err{
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 14%, transparent);
+  }
+  .status-badge.err::before{ background: var(--danger); }
+
+  /* ============================================================
+     FOOTER / HISTORY
+     ============================================================ */
+  .footer-panel{
+    flex: 1;
+    min-height: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .history-list{
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-list h4{
+    margin: 0 0 2px 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .history-empty{
+    margin: auto;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 12px;
+    padding: 20px 10px;
+  }
+
+  .history-item{
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+
+  .history-time{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-faint);
+    flex-shrink: 0;
+    width: 58px;
+  }
+
+  .history-texts{ flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+
+  .history-original, .history-translated{
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-dim);
+    overflow-wrap: break-word;
+  }
+
+  .history-original strong, .history-translated strong{
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  .history-translated{ color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="container" id="app" data-theme="default">
+
+  <div class="top-bar">
+    <div class="api-group">
+      <label>API Key</label>
+      <div class="api-input-wrapper">
+        <input id="apiKeyInput" type="password" placeholder="AIzaSy...">
+        <button class="icon-btn" id="toggleKeyBtn" title="Show/Hide">
+          <svg id="eyeIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="save-btn" id="saveBtn">Save</button>
+    <div class="status-indicator" id="statusIndicator" title="Ready">
+      <div class="status-dot" id="statusDot"></div>
+    </div>
+  </div>
+
+  <div id="errorBox" class="error-box" style="display:none;"></div>
+  <div id="hintBox" class="hint-text">
+    Press <strong id="shortcutHint">Ctrl+Space</strong> anywhere to dictate.
+  </div>
+
+  <div class="settings-panel">
+
+    <div class="form-group">
+      <label>Microphone</label>
+      <div class="mic-row">
+        <select id="deviceSelect">
+          <option value="">Default Microphone</option>
+        </select>
+        <button class="test-btn" id="testMicBtn">Test Mic</button>
+      </div>
+      <div class="volume-bar-container" id="volumeContainer" style="display:none;">
+        <div class="volume-bar-fill" id="volumeFill"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half">
+        <label>Language</label>
+        <input list="languages-list" id="languageInput" placeholder="e.g. Ukrainian">
+        <datalist id="languages-list"></datalist>
+      </div>
+      <div class="form-group half">
+        <label>Tone</label>
+        <input list="tones-list" id="toneInput" placeholder="e.g. Neutral">
+        <datalist id="tones-list"></datalist>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half">
+        <label>Theme</label>
+        <div class="theme-select-wrap">
+          <span class="theme-swatch"></span>
+          <select id="themeSelect">
+            <option value="default">Default Dark</option>
+            <option value="navy-gold">Navy &amp; Gold</option>
+            <option value="midnight-orange">Midnight Orange</option>
+            <option value="deep-aqua">Deep Aqua</option>
+            <option value="charcoal-mint">Charcoal Mint</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group half">
+        <label>Shortcut</label>
+        <input type="text" id="shortcutInput" value="Ctrl+Space" placeholder="Click here and press keys" readonly>
+      </div>
+    </div>
+
+    <div style="text-align:right; margin-top:-2px;">
+      <span class="status-badge ok" id="shortcutStatus">Shortcut Status: OK</span>
+    </div>
+
+  </div>
+
+  <div class="footer-panel">
+    <div class="history-list" id="historyList">
+      <div class="history-empty">No dictations yet this session.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const LANGUAGES = ["Ukrainian","English","Spanish","German","French","Polish","Italian","Portuguese","Japanese","Korean"];
+  const TONES = ["Neutral","Professional","Casual","Friendly","Formal","Concise"];
+
+  const app = document.getElementById('app');
+  const langList = document.getElementById('languages-list');
+  const toneList = document.getElementById('tones-list');
+  LANGUAGES.forEach(l => { const o = document.createElement('option'); o.value = l; langList.appendChild(o); });
+  TONES.forEach(t => { const o = document.createElement('option'); o.value = t; toneList.appendChild(o); });
+
+  // ---- API key show/hide ----
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const toggleKeyBtn = document.getElementById('toggleKeyBtn');
+  const eyeIcon = document.getElementById('eyeIcon');
+  const EYE = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/>';
+  const EYE_OFF = '<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  let keyVisible = false;
+  toggleKeyBtn.addEventListener('click', () => {
+    keyVisible = !keyVisible;
+    apiKeyInput.type = keyVisible ? 'text' : 'password';
+    eyeIcon.innerHTML = keyVisible ? EYE_OFF : EYE;
+  });
+
+  // ---- Save button feedback ----
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.addEventListener('click', () => {
+    saveBtn.textContent = 'Saved!';
+    saveBtn.style.backgroundColor = 'var(--success)';
+    setTimeout(() => {
+      saveBtn.textContent = 'Save';
+      saveBtn.style.backgroundColor = 'var(--accent-color)';
+    }, 1400);
+  });
+
+  // ---- Theme switching ----
+  const themeSelect = document.getElementById('themeSelect');
+  themeSelect.addEventListener('change', () => {
+    app.setAttribute('data-theme', themeSelect.value);
+  });
+
+  // ---- Shortcut capture ----
+  const shortcutInput = document.getElementById('shortcutInput');
+  const shortcutHint = document.getElementById('shortcutHint');
+  const shortcutStatus = document.getElementById('shortcutStatus');
+
+  function setShortcutStatus(ok){
+    shortcutStatus.textContent = 'Shortcut Status: ' + (ok ? 'OK' : 'ERR');
+    shortcutStatus.className = 'status-badge ' + (ok ? 'ok' : 'err');
+  }
+
+  shortcutInput.addEventListener('keydown', (e) => {
+    e.preventDefault();
+    if (['Control','Alt','Shift','Meta'].includes(e.key)) return;
+
+    const keys = [];
+    if (e.ctrlKey || e.metaKey) keys.push('CommandOrControl');
+    if (e.altKey) keys.push('Alt');
+    if (e.shiftKey) keys.push('Shift');
+
+    let key = e.key;
+    if (key === ' ') key = 'Space';
+    else if (key.length === 1) key = key.toUpperCase();
+    keys.push(key);
+
+    const combo = keys.join('+');
+    shortcutInput.value = combo;
+    shortcutHint.textContent = combo.replace('CommandOrControl', 'Ctrl');
+
+    // a combo needs at least one modifier to be considered valid
+    setShortcutStatus(keys.length > 1);
+  });
+
+  // ---- Microphone: enumerate + live volume test ----
+  const deviceSelect = document.getElementById('deviceSelect');
+  const testMicBtn = document.getElementById('testMicBtn');
+  const volumeContainer = document.getElementById('volumeContainer');
+  const volumeFill = document.getElementById('volumeFill');
+  const errorBox = document.getElementById('errorBox');
+
+  function showError(msg){
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+  }
+  function clearError(){ errorBox.style.display = 'none'; }
+
+  if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const mics = devices.filter(d => d.kind === 'audioinput');
+      mics.forEach((d, i) => {
+        const o = document.createElement('option');
+        o.value = d.deviceId;
+        o.textContent = d.label || `Mic ${d.deviceId.slice(0,5) || i}...`;
+        deviceSelect.appendChild(o);
+      });
+    }).catch(() => {});
+  }
+
+  let monitoring = false;
+  let audioCtx, analyser, source, stream, rafId;
+
+  function stopMonitoring(){
+    monitoring = false;
+    testMicBtn.textContent = 'Test Mic';
+    testMicBtn.classList.remove('active');
+    volumeContainer.style.display = 'none';
+    volumeFill.style.width = '0%';
+    if (rafId) cancelAnimationFrame(rafId);
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (audioCtx) audioCtx.close();
+    audioCtx = null; analyser = null; source = null; stream = null;
+  }
+
+  async function startMonitoring(){
+    clearError();
+    try{
+      const constraints = deviceSelect.value ? { audio: { deviceId: { exact: deviceSelect.value } } } : { audio: true };
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      monitoring = true;
+      testMicBtn.textContent = 'Stop';
+      testMicBtn.classList.add('active');
+      volumeContainer.style.display = 'block';
+
+      const tick = () => {
+        if (!monitoring) return;
+        analyser.getByteFrequencyData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) sum += data[i];
+        const avg = sum / data.length; // 0..255
+        volumeFill.style.width = Math.min(100, (avg / 255) * 100 * 2.2) + '%';
+        rafId = requestAnimationFrame(tick);
+      };
+      tick();
+    }catch(err){
+      showError('Could not access microphone: ' + (err.message || 'permission denied.'));
+      stopMonitoring();
+    }
+  }
+
+  testMicBtn.addEventListener('click', () => {
+    if (monitoring) stopMonitoring(); else startMonitoring();
+  });
+
+  // ---- Sample history rows (illustrates styling only) ----
+  const historyList = document.getElementById('historyList');
+  const sample = [
+    { time: '14:02:11', original: 'Nagadaj mi zustrich na chetver o desyatiy.', translated: 'Remind me of the meeting on Thursday at ten.' },
+    { time: '13:47:58', original: 'Vidpravyty zvit do kintsya dnya.', translated: 'Send the report by end of day.' }
+  ];
+  function renderHistory(items){
+    if (!items.length){
+      historyList.innerHTML = '<div class="history-empty">No dictations yet this session.</div>';
+      return;
+    }
+    historyList.innerHTML = '<h4>Recent Dictations (Session Only)</h4>' + items.map(item => `
+      <div class="history-item">
+        <div class="history-time">${item.time}</div>
+        <div class="history-texts">
+          <div class="history-original"><strong>Orig:</strong> ${item.original}</div>
+          <div class="history-translated"><strong>Trans:</strong> ${item.translated}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  renderHistory(sample);
+
+  // ---- Status indicator demo cycle (Ready -> Recording -> Processing) ----
+  const statusDot = document.getElementById('statusDot');
+  const statusIndicator = document.getElementById('statusIndicator');
+  const states = [
+    { cls: '', title: 'Ready' },
+    { cls: 'recording', title: 'Recording' },
+    { cls: 'processing', title: 'Processing' }
+  ];
+  statusIndicator.addEventListener('click', () => {
+    const current = states.findIndex(s => statusDot.classList.contains(s.cls) || (s.cls === '' && !statusDot.className.includes('recording') && !statusDot.className.includes('processing')));
+    const next = states[(current + 1) % states.length];
+    statusDot.className = 'status-dot ' + next.cls;
+    statusIndicator.title = next.title;
+  });
+})();
+</script>
+
+</body>
+</html>
