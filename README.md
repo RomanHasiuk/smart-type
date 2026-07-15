@@ -1,5 +1,7 @@
 # Smart Type 🎙️✨
 
+**🌐 Live Demo:** [https://smart-type-five.vercel.app/](https://smart-type-five.vercel.app/)
+
 A modern web application for voice recognition, smart formatting, and automatic translation powered by AI (Google Gemini).
 
 ## 🚀 Features
