@@ -36,14 +36,17 @@ const TONES = [
   "Casual",
   "Friendly",
   "Slang",
+  "Concise",
   "Discord",
   "Senior Developer",
   "Code Reviewer",
+  "Git Commit Message",
   "StackOverflow Answer",
   "Technical Writer",
   "Formal Letter with Greeting & Signature",
   "Newspaper Report Style",
   "Aggressive",
+  "Obnoxious",
   "Sarcastic",
   "Poetic",
   "Shakespearean",
@@ -231,7 +234,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    adjustHeight(origTextRef.current);
+    if (origTextRef.current) adjustHeight(origTextRef.current);
   }, [originalText]);
 
   useEffect(() => {
@@ -251,7 +254,6 @@ function App() {
 
   return (
     <main className="container">
-      {/* Theme switcher */}
       <div className="theme-switcher">
         {THEMES.map(t => (
           <button 
@@ -266,40 +268,16 @@ function App() {
       </div>
 
       <h1>Smart Type</h1>
-      <div className="api-key-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px', position: 'relative', width: 'fit-content', margin: '0 auto 15px auto' }}>
-        <input 
+      <div className="api-key-container">
+        <input
           type={showApiKey ? "text" : "password"} 
           value={apiKey} 
           onChange={handleApiKeyChange} 
-          placeholder="Paste your Gemini API Key here..." 
-          style={{ 
-            width: '300px', 
-            padding: '8px 40px 8px 12px', 
-            borderRadius: '6px', 
-            border: '1px solid var(--border-color)', 
-            backgroundColor: 'var(--panel-bg)', 
-            color: 'var(--text-color)',
-            fontSize: '0.9rem',
-            textAlign: 'center'
-          }}
+          placeholder="Paste your Gemini API Key here..."
         />
-        <button 
+        <button
           onClick={() => setShowApiKey(!showApiKey)}
-          style={{
-            position: 'absolute',
-            right: '10px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--text-color)',
-            opacity: 0.7,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0
-          }}
+          className="api-key-toggle-btn"
           title={showApiKey ? "Hide API Key" : "Show API Key"}
         >
           {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -323,7 +301,6 @@ function App() {
         </div>
       )}
 
-      {/* Microphone button and language selection */}
       <div className="controls-row">
         <ComboBox
           className="language-combobox"
@@ -344,7 +321,6 @@ function App() {
         />
       </div>
 
-      {/* Microphone settings and indicator */}
       <div className="mic-settings">
         <div className="mic-controls">
             {devices.length > 1 && (
@@ -386,7 +362,6 @@ function App() {
             ></div>
           </div>
         </div>
-      {/* Text blocks */}
       <div className="text-blocks">
         <div className="textarea-wrapper">
           <textarea
@@ -442,7 +417,6 @@ function App() {
           </div>
         </div>
 
-        {/* Translation field */}
         <div className="textarea-wrapper">
           <textarea
             ref={transTextRef}
