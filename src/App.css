@@ -185,20 +185,19 @@ body {
 /* ===== CONTROLS ROW ===== */
 .controls-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 12px;
   margin: 24px auto;
   flex-wrap: wrap;
   width: 100%;
+  position: relative;
+  z-index: 10;
 }
 
 /* ===== INPUTS & SELECTS ===== */
-.language-input,
-.tone-input,
+.combobox-input,
 .api-key-container input,
 .mic-select {
-  padding: 12px 18px;
+  padding: 12px 30px 12px 18px; /* 30px right for dropdown arrow */
   border-radius: var(--radius-sm);
   background: var(--panel-2);
   border: 1px solid var(--border);
@@ -212,26 +211,88 @@ body {
   width: 100%;
 }
 
-.language-input,
-.tone-input {
+.language-combobox,
+.tone-combobox {
   flex: 1;
   min-width: 140px;
 }
 
-.language-input:focus,
-.tone-input:focus,
+.combobox-input:focus,
 .api-key-container input:focus,
 .mic-select:focus,
-.language-input:hover,
-.tone-input:hover {
+.combobox-input:hover {
   border-color: var(--accent-color);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.language-input:disabled,
-.tone-input:disabled {
+.combobox-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* --- ComboBox Specific --- */
+.combobox-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.combobox-arrow {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+.combobox-arrow:hover {
+  color: var(--text);
+}
+
+.combobox-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  list-style: none;
+  padding: 4px 0;
+  margin-bottom: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  text-align: left;
+}
+
+.combobox-dropdown li {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.combobox-dropdown li:hover {
+  background: var(--bg-soft);
+}
+.combobox-dropdown li.selected {
+  background: var(--accent-soft);
+  color: var(--accent-color);
+  font-weight: 500;
+}
+.combobox-empty {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
 }
 
 /* ===== MIC SETTINGS & VOLUME METER ===== */

@@ -3,6 +3,60 @@ import { Mic, Square, Sparkles, Copy, Trash2, Volume2, VolumeX, Check, Activity,
 import "./App.css";
 import { useAudioCapture } from "./hooks/useAudioCapture";
 import { useGeminiLive } from "./hooks/useGeminiLive";
+import { ComboBox } from "./components/ComboBox";
+
+const LANGUAGES = [
+  "Ukrainian",
+  "English",
+  "Polish",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Chinese",
+  "Korean",
+  "Arabic",
+  "Japanese",
+  "JavaScript",
+  "TypeScript",
+  "Python",
+  "Rust",
+  "Go",
+  "C++",
+  "Java",
+  "PHP",
+  "Ruby",
+  "Swift",
+  "Kotlin",
+];
+
+const TONES = [
+  "Neutral",
+  "Professional",
+  "Casual",
+  "Friendly",
+  "Slang",
+  "Discord",
+  "Senior Developer",
+  "Code Reviewer",
+  "StackOverflow Answer",
+  "Technical Writer",
+  "Formal Letter with Greeting & Signature",
+  "Newspaper Report Style",
+  "Aggressive",
+  "Sarcastic",
+  "Poetic",
+  "Shakespearean",
+  "Romantic",
+  "Funny",
+  "Romantic Novel",
+  "Fantasy Wizard",
+  "Cyberpunk AI",
+  "Horror Story",
+  "Detective Noir",
+  "Pirate Captain",
+  "Viking Warrior",
+];
 
 const THEMES = [
   { id: 'system', name: 'System Theme', icon: <Monitor size={16} /> },
@@ -271,59 +325,23 @@ function App() {
 
       {/* Microphone button and language selection */}
       <div className="controls-row">
-        <input
-          type="text"
-          list="languages"
-          className="language-input"
+        <ComboBox
+          className="language-combobox"
           value={targetLanguage}
-          onChange={(e) => setTargetLanguage(e.target.value)}
+          onChange={setTargetLanguage}
+          options={LANGUAGES}
           placeholder="Ukrainian"
           disabled={isCapturing || isProcessing}
         />
-        <datalist id="languages">
-          <option value="Ukrainian" />
-          <option value="English" />
-          <option value="Polish" />
-          <option value="Spanish" />
-          <option value="German" />
-          <option value="Italian" />
-          <option value="French" />
-          <option value="Chinese" />
-          <option value="Korean" />
-        </datalist>
 
-        <input
-          type="text"
-          className="tone-input"
+        <ComboBox
+          className="tone-combobox"
           value={tone}
-          onChange={(e) => setTone(e.target.value)}
+          onChange={setTone}
+          options={TONES}
           placeholder="Neutral"
-          list="tone-options"
           disabled={isCapturing || isProcessing}
         />
-        <datalist id="tone-options">
-          <option value="Neutral" />
-          <option value="Professional" />
-          <option value="Casual" />
-          <option value="Friendly" />
-          <option value="Slang" />
-          <option value="Discord" />
-          <option value="Formal Letter with Greeting & Signature" />
-          <option value="Newspaper Report Style" />
-          <option value="Aggressive" />
-          <option value="Sarcastic" />
-          <option value="Poetic" />
-          <option value="Shakespearean" />
-          <option value="Romantic" />
-          <option value="Funny" />
-          <option value="Romantic Novel" />
-          <option value="Fantasy Wizard" />
-          <option value="Cyberpunk AI" />
-          <option value="Horror Story" />
-          <option value="Detective Noir" />
-          <option value="Pirate Captain" />
-          <option value="Viking Warrior" />
-        </datalist>
       </div>
 
       {/* Microphone settings and indicator */}
