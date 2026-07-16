@@ -32,26 +32,20 @@ A modern web application for voice recognition, smart formatting, and automatic 
    npm install
    ```
 
-3. Configure Environment Variables:
-   - Rename `.env.example` to `.env`.
-   - Insert your Google Gemini API key:
-     ```env
-     VITE_GEMINI_API_KEY=your_api_key_here
-     ```
-
-4. Run the project:
+3. Run the project:
    ```bash
    npm run dev
    ```
+
+4. Open the app in your browser and enter your **Google Gemini API Key** directly in the input field. The key is securely saved in your browser's local storage.
 
 ## 🚀 Deploying to Vercel
 
 This project is 100% ready to be deployed on Vercel without any extra configuration.
 1. Push your code to your GitHub repository.
 2. Go to [Vercel](https://vercel.com/) and import your repository.
-3. In the **Environment Variables** section of Vercel settings, you MUST add:
-   - Key: `VITE_GEMINI_API_KEY`
-   - Value: `your_actual_api_key_here`
-4. Click **Deploy**.
+3. Click **Deploy**.
+4. Once deployed, open the live link and paste your **Google Gemini API Key** in the input field.
 
-Done! Your app will be live and accessible via the Vercel link.
+Done! Your app is now live and fully operational.
+
