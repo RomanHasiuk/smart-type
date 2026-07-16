@@ -76,7 +76,7 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
         onKeyDown={handleKeyDown}
       />
       <button 
-        type="button" 
+        type="button"
         className="combobox-arrow"
         onClick={() => {
           if (!disabled) {
@@ -94,10 +94,10 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt, i) => (
               <li 
-                key={i} 
+                key={i}
                 className={opt === value ? 'selected' : ''}
                 onMouseDown={(e) => {
-                  e.preventDefault(); // Prevents input from losing focus immediately
+                  e.preventDefault();
                   handleSelect(opt);
                 }}
               >
@@ -106,7 +106,7 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
             ))
           ) : (
             <li className="combobox-empty">
-              Натисніть Enter, щоб використати "{inputValue}"
+              Press Enter to use "{inputValue}"
             </li>
           )}
         </ul>

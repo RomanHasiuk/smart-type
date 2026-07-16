@@ -4,7 +4,8 @@ export const useGeminiLive = (
   origCursor?: MutableRefObject<number>,
   transCursor?: MutableRefObject<number>,
   targetLanguage: string = "Polish",
-  tone: string = "Neutral"
+  tone: string = "Neutral",
+  isQaMode: boolean = false
 ) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export const useGeminiLive = (
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${API_KEY}`;
       
-      const systemPrompt = `You are a professional translator and editor.
+      const standardPrompt = `You are a professional translator and editor.
 You will be provided with a text.
 Your goal is to perform two tasks and return the result in JSON format:
 1. "original": Perfectly format and correct the text (remove filler words like 'umm', 'uh', unnecessary pauses, fix minor errors, and add proper punctuation), while keeping the original language. This text MUST remain in a strictly NEUTRAL tone (do not change the style or add any new words).
@@ -56,6 +57,22 @@ Return ONLY valid JSON in this format:
   "translated": "...",
   "languageCode": "en-US"
 }`;
+
+      const qaPrompt = `You are a knowledgeable AI assistant.
+You will be provided with a text representing a question or prompt.
+Your goal is to perform two tasks and return the result in JSON format:
+1. "original": Format and correct the user's question/prompt for grammar and clarity, keeping its original language.
+2. "translated": ANSWER the question or fulfill the prompt in the target language (${targetLanguage}). You MUST apply the following tone/style to your answer: ${tone}. Do NOT just translate the question; provide the actual ANSWER.
+3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).
+
+Return ONLY valid JSON in this format:
+{
+  "original": "...",
+  "translated": "...",
+  "languageCode": "en-US"
+}`;
+
+      const systemPrompt = isQaMode ? qaPrompt : standardPrompt;
 
       const payload = {
         contents: [{
@@ -133,7 +150,7 @@ Return ONLY valid JSON in this format:
         // Request to the lightweight Gemini 3.1 Flash-Lite model
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${API_KEY}`;
         
-        const systemPrompt = `You are a professional translator and editor. 
+        const standardAudioPrompt = `You are a professional translator and editor. 
 You will be provided with an audio recording.
 Your goal is to perform two tasks and return the result in JSON format:
 1. "original": Transcribe the original language, perfectly format the text (remove filler words, unnecessary pauses, fix minor errors, and add proper punctuation). This text MUST remain in a strictly NEUTRAL tone (do not change the style or add any new words).
@@ -146,6 +163,22 @@ Return ONLY valid JSON in this format:
   "translated": "...",
   "languageCode": "en-US"
 }`;
+
+        const qaAudioPrompt = `You are a knowledgeable AI assistant.
+You will be provided with an audio recording representing a question or prompt.
+Your goal is to perform two tasks and return the result in JSON format:
+1. "original": Transcribe, format, and correct the user's question/prompt, keeping its original language.
+2. "translated": ANSWER the question or fulfill the prompt in the target language (${targetLanguage}). You MUST apply the following tone/style to your answer: ${tone}. Do NOT just translate the question; provide the actual ANSWER.
+3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).
+
+Return ONLY valid JSON in this format:
+{
+  "original": "...",
+  "translated": "...",
+  "languageCode": "en-US"
+}`;
+
+        const systemPrompt = isQaMode ? qaAudioPrompt : standardAudioPrompt;
 
         const payload = {
           contents: [{
@@ -181,7 +214,8 @@ Return ONLY valid JSON in this format:
             const parsed = parseFlexibleJson(jsonText);
             
             if (parsed.original) {
-              setOriginalText(prev => insertTextAtCursor(prev, parsed.original, origCursor));
+              const originalWithSpace = parsed.original + " ";
+              setOriginalText(prev => insertTextAtCursor(prev, originalWithSpace, origCursor));
             }
             if (parsed.translated) {
               setTranslatedText(prev => insertTextAtCursor(prev, parsed.translated, transCursor));

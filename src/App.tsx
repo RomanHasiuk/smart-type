@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { Mic, Square, Sparkles, Copy, Trash2, Volume2, VolumeX, Check, Activity, Eye, EyeOff, Monitor, Sun, Moon, Flower2 } from "lucide-react";
+import { Mic, Square, Sparkles, Copy, Trash2, Volume2, VolumeX, Check, Activity, Eye, EyeOff, Monitor, Sun, Moon, Flower2, HelpCircle } from "lucide-react";
 import "./App.css";
 import { useAudioCapture } from "./hooks/useAudioCapture";
 import { useGeminiLive } from "./hooks/useGeminiLive";
@@ -40,9 +40,11 @@ const TONES = [
   "Discord",
   "Senior Developer",
   "Code Reviewer",
+  "Prompt Engineering",
   "Git Commit Message",
   "StackOverflow Answer",
   "Technical Writer",
+  "Markdown",
   "Formal Letter with Greeting & Signature",
   "Newspaper Report Style",
   "Aggressive",
@@ -71,6 +73,7 @@ const THEMES = [
 function App() {
   const [targetLanguage, setTargetLanguage] = useState<string>("");
   const [tone, setTone] = useState<string>("");
+  const [isQaMode, setIsQaMode] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('system');
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("gemini_api_key") || "");
   const [showApiKey, setShowApiKey] = useState(false);
@@ -109,7 +112,7 @@ function App() {
     detectedLangCode,
     processAudio,
     processText,
-  } = useGeminiLive(origCursor, transCursor, targetLanguage || "Ukrainian", tone || "Neutral");
+  } = useGeminiLive(origCursor, transCursor, targetLanguage || "Ukrainian", tone || "Neutral", isQaMode);
 
   const recordingTimeoutRef = useRef<number | null>(null);
 
@@ -290,13 +293,13 @@ function App() {
       </div>
 
       {!isSupported && (
-        <div style={{ color: 'var(--danger)', textAlign: 'center', marginBottom: '10px' }}>
+        <div className="error-message">
           ⚠️ Your browser does not support audio recording.
         </div>
       )}
 
       {error && (
-        <div style={{ color: 'var(--danger)', textAlign: 'center', marginBottom: '10px' }}>
+        <div className="error-message">
           ❌ Error: {error}
         </div>
       )}
@@ -387,7 +390,6 @@ function App() {
                 className={`action-button ${isCapturing ? "recording" : ""}`}
                 onClick={handleToggleRecord}
                 disabled={isProcessing}
-                style={{ borderColor: isCapturing ? '#ef4444' : '', color: isCapturing ? '#ef4444' : '' }}
               >
                 {isCapturing ? <Square size={20} fill="currentColor" /> : <Mic size={20} />}
               </button>
@@ -399,6 +401,16 @@ function App() {
                 disabled={isProcessing || !originalText.trim()}
               >
                 <Sparkles size={20} />
+              </button>
+            </div>
+            <div className="tooltip-container" data-tooltip={isQaMode ? "Q&A Mode: ON" : "Q&A Mode: OFF"}>
+              <button 
+                className={`action-button ${isQaMode ? "active" : ""}`} 
+                onClick={() => setIsQaMode(!isQaMode)} 
+                disabled={isProcessing}
+                style={isQaMode ? { borderColor: 'var(--accent-color)', color: 'var(--accent-color)' } : {}}
+              >
+                <HelpCircle size={20} />
               </button>
             </div>
             <div className="tooltip-container tooltip-right-align" data-tooltip={copiedOriginal ? "Copied!" : "Copy original text"}>

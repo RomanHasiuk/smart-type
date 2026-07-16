@@ -539,21 +539,37 @@ body {
   cursor: not-allowed;
 }
 
+.error-message {
+  color: var(--danger);
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 .action-button.recording {
-  background: var(--danger);
-  color: var(--bg);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
   border-color: var(--danger);
-  animation: pulse-recording 2s infinite;
+  animation: pulse-recording 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.action-button.recording svg {
+  animation: blink-recording 1.5s infinite ease-in-out;
 }
 
 @keyframes pulse-recording {
-  0%,
-  100% {
+  0%, 100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.8);
   }
   50% {
-    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    border-color: rgba(239, 68, 68, 0.3);
   }
+}
+
+@keyframes blink-recording {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
 }
 
 /* Custom Tooltip */
