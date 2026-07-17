@@ -46,6 +46,8 @@ const TONES = [
   "Senior Developer",
   "Code Reviewer",
   "Prompt Engineering",
+  "Lite IT Slang",
+  "IT Jargon & Tech Slang",
   "Git Commit Message",
   "StackOverflow Answer",
   "Technical Writer",

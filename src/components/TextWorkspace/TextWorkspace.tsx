@@ -120,6 +120,7 @@ export function TextWorkspace({
               type="button"
               className="action-button"
               onClick={() => copyToClipboard(originalText, true)}
+              disabled={!originalText.trim()}
             >
               {copiedOriginal ? <Check size={20} color="#10b981" /> : <Copy size={20} />}
             </button>
@@ -132,6 +133,7 @@ export function TextWorkspace({
                 setOriginalText("");
                 setTranslatedText("");
               }}
+              disabled={!originalText.trim() && !translatedText.trim()}
             >
               <Trash2 size={20} />
             </button>
@@ -172,6 +174,7 @@ export function TextWorkspace({
               type="button"
               className="action-button"
               onClick={() => copyToClipboard(translatedText, false)}
+              disabled={!translatedText.trim()}
             >
               {copiedTranslated ? <Check size={20} color="#10b981" /> : <Copy size={20} />}
             </button>
@@ -181,6 +184,7 @@ export function TextWorkspace({
               type="button"
               className="action-button"
               onClick={() => setTranslatedText("")}
+              disabled={!translatedText.trim()}
             >
               <Trash2 size={20} />
             </button>
