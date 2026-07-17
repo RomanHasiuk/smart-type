@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
 /* ===== BASE ===== */
 * {
   margin: 0;
@@ -10,8 +12,8 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
-  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  --font-ui: 'JetBrains Mono', 'Comfortaa', 'Montserrat', "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-editor: 'Verdana', sans-serif;
   --glass-blur: blur(12px);
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -70,7 +72,7 @@
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-body {
+body.smart-type-app {
   font-family: var(--font-ui);
   background: var(--bg);
   min-height: 100vh;
@@ -127,24 +129,15 @@ body {
 }
 
 /* ===== HEADER ===== */
-.container h1 {
+.container-title {
+  font-family: var(--font-editor);
   text-align: center;
   font-size: 2.25rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text);
   margin-bottom: 8px;
   letter-spacing: -0.025em;
   transition: color 0.5s ease;
-}
-
-/* ===== THEME SWITCHER ===== */
-.theme-switcher {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-bottom: 20px;
-  z-index: 20;
 }
 
 /* ===== COMMON BUTTON STYLING (DRY) ===== */
@@ -197,49 +190,6 @@ body {
   font-size: 20px;
 }
 
-.theme-btn.active {
-  background: var(--bg);
-  color: var(--accent-color);
-  border-color: var(--accent-color);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* ===== API KEY CONTAINER ===== */
-.api-key-container {
-  display: flex;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto 24px auto;
-}
-
-.api-key-container input {
-  text-align: center;
-  padding-right: 40px !important;
-}
-
-.api-key-toggle-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text);
-  opacity: 0.7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: opacity 0.2s;
-}
-
-.api-key-toggle-btn:hover {
-  opacity: 1;
-}
-
 /* ===== CONTROLS ROW ===== */
 .controls-row {
   display: flex;
@@ -289,176 +239,7 @@ body {
   cursor: not-allowed;
 }
 
-/* --- ComboBox Specific --- */
-.combobox-container {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
 
-.combobox-arrow {
-  position: absolute;
-  right: 8px;
-  background: transparent;
-  border: none;
-  color: var(--text-dim);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-}
-.combobox-arrow:hover {
-  color: var(--text);
-}
-
-.combobox-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 4px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
-  list-style: none;
-  padding: 4px 0;
-  margin-bottom: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-  text-align: left;
-}
-
-.combobox-dropdown li {
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.combobox-dropdown li:hover {
-  background: var(--bg-soft);
-}
-.combobox-dropdown li.selected {
-  background: var(--accent-soft);
-  color: var(--accent-color);
-  font-weight: 500;
-}
-.combobox-empty {
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--text-dim);
-  font-style: italic;
-}
-
-/* ===== MIC SETTINGS & VOLUME METER ===== */
-.mic-settings {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.mic-controls {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.mic-combobox {
-  flex: 1;
-  min-width: 0;
-}
-
-.test-mic-button.active {
-  background: var(--bg);
-  border-color: var(--accent-color);
-  color: var(--accent-color);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  animation: pulse-recording 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-.test-mic-button.active svg {
-  animation: blink-recording 1.5s infinite ease-in-out;
-}
-
-.volume-meter-container {
-  width: 100%;
-  max-width: 250px;
-  height: 6px;
-  background: var(--panel-2);
-  border-radius: 9999px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  margin-top: 4px;
-  margin-bottom: 12px;
-}
-
-.volume-meter-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-color), var(--success));
-  transition:
-    width 0.1s ease,
-    opacity 0.3s ease;
-  border-radius: 9999px;
-}
-
-/* ===== TEXT BLOCKS ===== */
-.text-blocks {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  gap: 20px;
-}
-
-/* ===== TEXTAREAS ===== */
-.original-text,
-.translated-text {
-  width: 100%;
-  min-height: 200px;
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text);
-  resize: none;
-  transition: all 0.3s ease;
-  position: relative;
-  font-family: var(--font-ui);
-}
-
-.original-text::placeholder,
-.translated-text::placeholder {
-  color: var(--text-faint);
-}
-
-.original-text:focus,
-.translated-text:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-/* Labels for textareas */
-.text-blocks {
-  position: relative;
-}
-
-.original-text {
-  border-top: 3px solid var(--accent-color);
-}
-
-.translated-text {
-  border-top: 3px solid var(--success);
-}
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {

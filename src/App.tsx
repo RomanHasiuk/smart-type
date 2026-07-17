@@ -3,12 +3,12 @@ import "./App.css";
 import { useAudioCapture } from "./hooks/useAudioCapture";
 import { useGeminiLive } from "./hooks/useGeminiLive";
 import { useSpeechSynthesis } from "./hooks/useSpeechSynthesis";
-import { ComboBox } from "./components/ComboBox";
-import { ThemeSwitcher } from "./components/ThemeSwitcher";
-import { ApiKeyInput } from "./components/ApiKeyInput";
-import { ModelSelector } from "./components/ModelSelector";
-import { AudioSettings } from "./components/AudioSettings";
-import { TextWorkspace } from "./components/TextWorkspace";
+import { ComboBox } from "./components/ComboBox/ComboBox";
+import { ThemeSwitcher } from "./components/ThemeSwitcher/ThemeSwitcher";
+import { ApiKeyInput } from "./components/ApiKeyInput/ApiKeyInput";
+import { ModelSelector } from "./components/ModelSelector/ModelSelector";
+import { AudioSettings } from "./components/AudioSettings/AudioSettings";
+import { TextWorkspace } from "./components/TextWorkspace/TextWorkspace";
 
 const LANGUAGES = [
   "Ukrainian",
@@ -188,7 +188,7 @@ function App() {
     <main className="container">
       <ThemeSwitcher currentTheme={currentTheme} onChange={setCurrentTheme} />
 
-      <h1>Smart Type</h1>
+      <h1 className="container-title">Smart Type</h1>
 
       <ApiKeyInput apiKey={apiKey} onChange={handleApiKeyChange} />
 

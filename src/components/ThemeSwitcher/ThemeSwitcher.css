@@ -1,0 +1,15 @@
+.theme-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 20px;
+  z-index: 20;
+}
+
+.theme-btn.active {
+  background: var(--bg);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

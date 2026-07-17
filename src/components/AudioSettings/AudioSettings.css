@@ -1,0 +1,54 @@
+.mic-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.mic-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.mic-combobox {
+  flex: 1;
+  min-width: 0;
+}
+
+.test-mic-button.active {
+  background: var(--bg);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  animation: pulse-recording 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.test-mic-button.active svg {
+  animation: blink-recording 1.5s infinite ease-in-out;
+}
+
+.volume-meter-container {
+  width: 100%;
+  max-width: 250px;
+  height: 6px;
+  background: var(--panel-2);
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.volume-meter-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-color), var(--success));
+  transition:
+    width 0.1s ease,
+    opacity 0.3s ease;
+  border-radius: 9999px;
+}

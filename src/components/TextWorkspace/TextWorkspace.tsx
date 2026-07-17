@@ -11,6 +11,7 @@ import {
   HelpCircle,
   MessageCircleQuestion,
 } from "lucide-react";
+import "./TextWorkspace.css";
 
 interface TextWorkspaceProps {
   originalText: string;

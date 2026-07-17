@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import "./ApiKeyInput.css";
 
 interface ApiKeyInputProps {
   apiKey: string;

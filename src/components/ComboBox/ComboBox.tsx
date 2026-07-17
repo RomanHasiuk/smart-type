@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
+import "./ComboBox.css";
 
 interface ComboBoxProps {
   value: string;
@@ -10,7 +11,14 @@ interface ComboBoxProps {
   disabled?: boolean;
 }
 
-export function ComboBox({ value, onChange, options, placeholder, className, disabled }: ComboBoxProps) {
+export function ComboBox({
+  value,
+  onChange,
+  options,
+  placeholder,
+  className,
+  disabled,
+}: ComboBoxProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const [isOpen, setIsOpen] = useState(false);
@@ -32,12 +40,12 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
         setIsTyping(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [inputValue, onChange, isOpen]);
 
   const filteredOptions = isTyping
-    ? options.filter(opt => opt.toLowerCase().includes(inputValue.toLowerCase()))
+    ? options.filter((opt) => opt.toLowerCase().includes(inputValue.toLowerCase()))
     : options;
 
   const handleSelect = (opt: string) => {
@@ -48,7 +56,7 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       onChange(inputValue);
       setIsOpen(false);
       setIsTyping(false);
@@ -56,7 +64,7 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
   };
 
   return (
-    <div className={`combobox-container ${className || ''}`} ref={containerRef}>
+    <div className={`combobox-container ${className || ""}`} ref={containerRef}>
       <input
         type="text"
         className="combobox-input"
@@ -75,7 +83,7 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
         }}
         onKeyDown={handleKeyDown}
       />
-      <button 
+      <button
         type="button"
         className="combobox-arrow"
         onClick={() => {
@@ -88,14 +96,14 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
       >
         <ChevronDown size={16} />
       </button>
-      
+
       {isOpen && !disabled && (
         <ul className="combobox-dropdown">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt, i) => (
-              <li 
+              <li
                 key={i}
-                className={opt === value ? 'selected' : ''}
+                className={opt === value ? "selected" : ""}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   handleSelect(opt);
@@ -105,9 +113,7 @@ export function ComboBox({ value, onChange, options, placeholder, className, dis
               </li>
             ))
           ) : (
-            <li className="combobox-empty">
-              Press Enter to use "{inputValue}"
-            </li>
+            <li className="combobox-empty">Press Enter to use "{inputValue}"</li>
           )}
         </ul>
       )}

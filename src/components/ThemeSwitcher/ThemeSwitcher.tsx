@@ -1,5 +1,6 @@
 import React from "react";
 import { Monitor, Sun, Moon, Flower2 } from "lucide-react";
+import "./ThemeSwitcher.css";
 
 interface Theme {
   id: string;
@@ -23,15 +24,15 @@ export function ThemeSwitcher({ currentTheme, onChange }: ThemeSwitcherProps) {
   return (
     <div className="theme-switcher">
       {THEMES.map((t) => (
-        <button
-          key={t.id}
-          className={`theme-btn ${currentTheme === t.id ? "active" : ""}`}
-          onClick={() => onChange(t.id)}
-          title={t.name}
-          type="button"
-        >
-          {t.icon}
-        </button>
+        <div key={t.id} className="tooltip-container" data-tooltip={t.name}>
+          <button
+            className={`theme-btn ${currentTheme === t.id ? "active" : ""}`}
+            onClick={() => onChange(t.id)}
+            type="button"
+          >
+            {t.icon}
+          </button>
+        </div>
       ))}
     </div>
   );

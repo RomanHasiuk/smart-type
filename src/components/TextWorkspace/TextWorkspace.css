@@ -1,0 +1,49 @@
+/* ===== TEXT BLOCKS ===== */
+.text-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 20px;
+}
+
+/* ===== TEXTAREAS ===== */
+.original-text,
+.translated-text {
+  width: 100%;
+  min-height: 200px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  resize: none;
+  transition: all 0.3s ease;
+  position: relative;
+  font-family: var(--font-editor); /* Uses Verdana via --font-editor */
+}
+
+.original-text::placeholder,
+.translated-text::placeholder {
+  color: var(--text-faint);
+}
+
+.original-text:focus,
+.translated-text:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Labels for textareas */
+.text-blocks {
+  position: relative;
+}
+
+.original-text {
+  border-top: 3px solid var(--accent-color);
+}
+
+.translated-text {
+  border-top: 3px solid var(--success);
+}

@@ -1,4 +1,5 @@
 import { Zap, Brain } from "lucide-react";
+import "./ModelSelector.css";
 
 interface ModelSelectorProps {
   aiModel: "lite" | "pro";

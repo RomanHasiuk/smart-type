@@ -1,5 +1,6 @@
 import { Activity } from "lucide-react";
-import { ComboBox } from "./ComboBox";
+import { ComboBox } from "../ComboBox/ComboBox";
+import "./AudioSettings.css";
 
 const getCleanLabel = (d: MediaDeviceInfo) => {
   return d.label
