@@ -3,78 +3,22 @@ import "./App.css";
 import { useAudioCapture } from "./hooks/useAudioCapture";
 import { useGeminiLive } from "./hooks/useGeminiLive";
 import { useSpeechSynthesis } from "./hooks/useSpeechSynthesis";
+import { playStartSound, playStopSound } from "./utils/audioFeedback";
 import { ComboBox } from "./components/ComboBox/ComboBox";
 import { ThemeSwitcher } from "./components/ThemeSwitcher/ThemeSwitcher";
 import { ApiKeyInput } from "./components/ApiKeyInput/ApiKeyInput";
 import { ModelSelector } from "./components/ModelSelector/ModelSelector";
 import { AudioSettings } from "./components/AudioSettings/AudioSettings";
 import { TextWorkspace } from "./components/TextWorkspace/TextWorkspace";
+import { VoiceModal } from "./components/VoiceModal/VoiceModal";
 
-const LANGUAGES = [
-  "Ukrainian",
-  "English",
-  "Polish",
-  "Spanish",
-  "French",
-  "German",
-  "Italian",
-  "Chinese",
-  "Korean",
-  "Arabic",
-  "Japanese",
-  "JavaScript",
-  "TypeScript",
-  "Python",
-  "Rust",
-  "Go",
-  "C++",
-  "Java",
-  "PHP",
-  "Ruby",
-  "Swift",
-  "Kotlin",
-];
-
-const TONES = [
-  "Neutral",
-  "Professional",
-  "Casual",
-  "Friendly",
-  "Slang",
-  "Concise",
-  "Discord",
-  "Senior Developer",
-  "Code Reviewer",
-  "Prompt Engineering",
-  "Lite IT Slang",
-  "IT Jargon & Tech Slang",
-  "Git Commit Message",
-  "StackOverflow Answer",
-  "Technical Writer",
-  "Markdown",
-  "Formal Letter with Greeting & Signature",
-  "Newspaper Report Style",
-  "Aggressive",
-  "Obnoxious",
-  "Sarcastic",
-  "Poetic",
-  "Shakespearean",
-  "Romantic",
-  "Funny",
-  "Romantic Novel",
-  "Fantasy Wizard",
-  "Cyberpunk AI",
-  "Horror Story",
-  "Detective Noir",
-  "Pirate Captain",
-  "Viking Warrior",
-];
+import { LANGUAGES, TONES, DEFAULT_MODEL } from "./config";
 
 function App() {
   const [targetLanguage, setTargetLanguage] = useState<string>("");
   const [tone, setTone] = useState<string>("");
   const [isQaMode, setIsQaMode] = useState(false);
-  const [aiModel, setAiModel] = useState<"lite" | "pro">("lite");
+  const [aiModel, setAiModel] = useState<string>(DEFAULT_MODEL);
   const [currentTheme, setCurrentTheme] = useState("system");
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("gemini_api_key") || "");
 
@@ -122,12 +66,13 @@ function App() {
     aiModel
   );
 
-  const { isSpeaking, speak } = useSpeechSynthesis();
+  const { isSpeaking, voiceWarningLang, closeVoiceWarning, speak } = useSpeechSynthesis();
 
   const recordingTimeoutRef = useRef<number | null>(null);
 
   const handleToggleRecord = async () => {
     if (isCapturing) {
+      playStopSound();
       if (recordingTimeoutRef.current) clearTimeout(recordingTimeoutRef.current);
       const audioBlob = await stopCapture();
       if (audioBlob) {
@@ -136,7 +81,9 @@ function App() {
     } else {
       const started = await startCapture();
       if (started) {
+        playStartSound();
         recordingTimeoutRef.current = setTimeout(async () => {
+          playStopSound();
           const audioBlob = await stopCapture();
           if (audioBlob) processAudio(audioBlob);
         }, 3 * 60 * 1000);
@@ -160,6 +107,16 @@ function App() {
       el.style.height = el.scrollHeight + "px";
     }
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (origTextRef.current) adjustHeight(origTextRef.current);
+      if (transTextRef.current) adjustHeight(transTextRef.current);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const applyTheme = () => {
@@ -256,6 +213,12 @@ function App() {
         handleProcessManualText={handleProcessManualText}
         isSpeaking={isSpeaking}
         onSpeakText={handleSpeakText}
+      />
+
+      <VoiceModal
+        isOpen={!!voiceWarningLang}
+        onClose={closeVoiceWarning}
+        langCode={voiceWarningLang || ""}
       />
     </main>
   );

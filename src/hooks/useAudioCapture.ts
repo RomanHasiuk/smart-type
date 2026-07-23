@@ -28,34 +28,61 @@ export const useAudioCapture = () => {
     if (typeof MediaRecorder !== "undefined") {
       setState((prev) => ({ ...prev, isSupported: true }));
       
-      const fetchDevices = async () => {
+      const fetchDevices = async (isInitial: boolean = false) => {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach(track => track.stop());
+          if (isInitial) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+          }
 
           const deviceInfos = await navigator.mediaDevices.enumerateDevices();
           const audioInputs = deviceInfos.filter(d => d.kind === 'audioinput');
-          setDevices(audioInputs);
-          if (audioInputs.length > 0) {
-            setSelectedDeviceId(audioInputs[0].deviceId);
+          
+          const cleanInputs = audioInputs.filter(device => {
+            const isVirtualAlias = device.deviceId === 'default' || device.deviceId === 'communications';
+            if (isVirtualAlias) {
+              const hasPhysicalDevices = audioInputs.some(d => d.deviceId !== 'default' && d.deviceId !== 'communications');
+              return !hasPhysicalDevices;
+            }
+            return true;
+          });
+
+          setDevices(cleanInputs);
+          if (cleanInputs.length > 0) {
+            setSelectedDeviceId((prev) => {
+              if (cleanInputs.some(d => d.deviceId === prev)) return prev;
+              return cleanInputs[0].deviceId;
+            });
           }
         } catch (err) {
           console.error("Error accessing microphones:", err);
         }
       };
 
-      fetchDevices();
+      fetchDevices(true);
+
+      const handleDeviceChange = () => {
+        fetchDevices(false);
+      };
+
+      if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+        navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
+      }
+
+      return () => {
+        if (navigator.mediaDevices && navigator.mediaDevices.removeEventListener) {
+          navigator.mediaDevices.removeEventListener("devicechange", handleDeviceChange);
+        }
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        if (audioContextRef.current) audioContextRef.current.close();
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+          mediaRecorderRef.current.stop();
+        }
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+        }
+      };
     }
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      if (audioContextRef.current) audioContextRef.current.close();
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-        mediaRecorderRef.current.stop();
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
   }, []);
 
   const updateVolume = () => {
@@ -94,6 +121,10 @@ export const useAudioCapture = () => {
   const stopMonitoring = () => {
     if (!state.isCapturing) {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (audioContextRef.current) {
+        audioContextRef.current.close().catch(() => {});
+        audioContextRef.current = null;
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
@@ -114,7 +145,22 @@ export const useAudioCapture = () => {
       const stream = streamRef.current!;
       audioChunksRef.current = [];
 
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const activeMic = devices.find((d) => d.deviceId === selectedDeviceId);
+      const micName = activeMic?.label || selectedDeviceId || "Default System Mic";
+      console.log(`🎙️ [Audio Capture] Started recording using mic: "${micName}" (ID: ${selectedDeviceId || "default"})`);
+
+      const options: MediaRecorderOptions = {};
+      if (typeof MediaRecorder.isTypeSupported === "function") {
+        if (MediaRecorder.isTypeSupported("audio/webm")) {
+          options.mimeType = "audio/webm";
+        } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+          options.mimeType = "audio/mp4";
+        } else if (MediaRecorder.isTypeSupported("audio/aac")) {
+          options.mimeType = "audio/aac";
+        }
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (e) => {
@@ -140,11 +186,12 @@ export const useAudioCapture = () => {
       }
 
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
         if (audioContextRef.current) {
-          audioContextRef.current.close();
+          audioContextRef.current.close().catch(() => {});
           audioContextRef.current = null;
         }
         setVolume(0);

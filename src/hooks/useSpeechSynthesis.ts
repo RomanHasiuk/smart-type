@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 export const useSpeechSynthesis = () => {
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [voiceWarningLang, setVoiceWarningLang] = useState<string | null>(null);
 
   useEffect(() => {
     if ("speechSynthesis" in window) {
@@ -17,9 +18,13 @@ export const useSpeechSynthesis = () => {
     }
   }, []);
 
+  const closeVoiceWarning = () => {
+    setVoiceWarningLang(null);
+  };
+
   const speak = (text: string, targetLanguage: string, detectedLangCode: string) => {
     if (!("speechSynthesis" in window)) {
-      alert("Speech synthesis is not supported in your browser.");
+      setVoiceWarningLang("Web Speech API not supported");
       return;
     }
 
@@ -45,9 +50,6 @@ export const useSpeechSynthesis = () => {
     const normalizedTarget = targetLanguage.toLowerCase().trim();
     const finalLangCode = langMap[normalizedTarget] || detectedLangCode || "en-US";
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = finalLangCode;
-
     const voices = window.speechSynthesis.getVoices();
     const langPrefix = finalLangCode.split("-")[0].toLowerCase();
 
@@ -57,7 +59,7 @@ export const useSpeechSynthesis = () => {
       return isMatch;
     });
 
-    if (!matchedVoice) {
+    if (!matchedVoice && voices.length > 0) {
       if (langPrefix === "uk") {
         matchedVoice = voices.find((v) => v.name.toLowerCase().includes("ukrainian"));
       }
@@ -69,19 +71,47 @@ export const useSpeechSynthesis = () => {
       }
     }
 
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
-    } else {
-      alert(
-        `Warning: Voice for language (${finalLangCode}) is not installed on your system.\n\nThe text might sound with a strange accent. For perfect speech:\n1. Install the language pack in Windows Settings (Time & Language -> Speech).\n2. OR open this app in Microsoft Edge (which has excellent built-in neural voices).`
-      );
+    if (!matchedVoice && voices.length > 0) {
+      setVoiceWarningLang(finalLangCode);
     }
 
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    const sentences = text
+      .match(/[^.!?]+[.!?]+/g) || [text];
 
+    let currentSentenceIndex = 0;
     setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+
+    const speakNextSentence = () => {
+      if (currentSentenceIndex >= sentences.length) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      const chunkText = sentences[currentSentenceIndex].trim();
+      if (!chunkText) {
+        currentSentenceIndex++;
+        speakNextSentence();
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(chunkText);
+      utterance.lang = finalLangCode;
+      if (matchedVoice) utterance.voice = matchedVoice;
+
+      utterance.onend = () => {
+        currentSentenceIndex++;
+        speakNextSentence();
+      };
+
+      utterance.onerror = (e) => {
+        console.error("SpeechSynthesis error:", e);
+        setIsSpeaking(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    speakNextSentence();
   };
 
   const stop = () => {
@@ -93,6 +123,8 @@ export const useSpeechSynthesis = () => {
 
   return {
     isSpeaking,
+    voiceWarningLang,
+    closeVoiceWarning,
     speak,
     stop,
   };

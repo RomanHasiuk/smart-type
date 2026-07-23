@@ -7,7 +7,7 @@ export const useGeminiLive = (
   targetLanguage: string = "Polish",
   tone: string = "Neutral",
   isQaMode: boolean = false,
-  aiModel: "lite" | "pro" = "lite"
+  aiModel: string = "gemini-3.1-flash-lite"
 ) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,10 +48,10 @@ export const useGeminiLive = (
       if (parsed.languageCode) {
         setDetectedLangCode(parsed.languageCode);
       }
-      setIsProcessing(false);
     } catch (err: any) {
       console.error(err);
       setError(`API Error: ${err.message || err}`);
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -68,6 +68,8 @@ export const useGeminiLive = (
       return;
     }
 
+    let sttInserted = false;
+
     try {
       const parsed = await processAudioRequest(
         audioBlob,
@@ -75,10 +77,20 @@ export const useGeminiLive = (
         tone,
         isQaMode,
         aiModel,
-        API_KEY
+        API_KEY,
+        (sttResult) => {
+          if (sttResult.original) {
+            sttInserted = true;
+            const originalWithSpace = sttResult.original + " ";
+            setOriginalText((prev) => insertTextAtCursor(prev, originalWithSpace, origCursor));
+          }
+          if (sttResult.languageCode) {
+            setDetectedLangCode(sttResult.languageCode);
+          }
+        }
       );
 
-      if (parsed.original) {
+      if (!sttInserted && parsed.original) {
         const originalWithSpace = parsed.original + " ";
         setOriginalText((prev) => insertTextAtCursor(prev, originalWithSpace, origCursor));
       }
@@ -88,10 +100,10 @@ export const useGeminiLive = (
       if (parsed.languageCode) {
         setDetectedLangCode(parsed.languageCode);
       }
-      setIsProcessing(false);
     } catch (err: any) {
       console.error(err);
       setError(`API Error: ${err.message || err}`);
+    } finally {
       setIsProcessing(false);
     }
   };

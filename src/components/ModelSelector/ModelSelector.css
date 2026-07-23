@@ -1,1 +1,154 @@
-/* ModelSelector specific styles */
+/* ============================================================
+   MODEL SELECTOR POPOVER STYLES
+   ============================================================ */
+.model-selector-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.model-selector-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--panel-2, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  color: var(--text, #ffffff);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.model-selector-btn:hover {
+  background: var(--panel-bg, rgba(255, 255, 255, 0.1));
+  border-color: var(--accent-color, #6366f1);
+}
+
+.model-selector-btn.active {
+  border-color: var(--accent-color, #6366f1);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+}
+
+.model-icon.lite {
+  color: #f59e0b;
+}
+
+.model-icon.pro {
+  color: #6366f1;
+}
+
+.chevron-icon {
+  color: var(--text-dim, #9ca3af);
+  transition: transform 0.2s ease;
+}
+
+.chevron-icon.open {
+  transform: rotate(180deg);
+}
+
+.model-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 230px;
+  background: var(--bg-soft, #1e1e24);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 6px;
+  z-index: 1000;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popover-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim, #9ca3af);
+  padding: 6px 10px 4px;
+}
+
+.popover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text, #e2e8f0);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.popover-item:hover {
+  background: var(--panel-2, rgba(255, 255, 255, 0.08));
+}
+
+.popover-item.selected {
+  background: var(--accent-soft, rgba(99, 102, 241, 0.15));
+  color: var(--accent-color, #6366f1);
+  font-weight: 600;
+}
+
+.popover-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popover-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+.model-badge.lite {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.model-badge.pro {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+}
+
+.check-icon {
+  color: var(--accent-color, #6366f1);
+}
