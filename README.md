@@ -1,51 +1,40 @@
-# Smart Type 🎙️✨
+# 🌐 Smart Type Web Application
 
-**🌐 Live Demo:** [https://smart-type-five.vercel.app/](https://smart-type-five.vercel.app/)
+Fast, modern web-based AI dictation and text transformation suite powered by React, Vite, TypeScript, and Google Gemini API (3.6 Flash / 3.5 Flash / 3.1 Flash Lite).
 
-A modern web application for voice recognition, smart formatting, and automatic translation powered by AI (Google Gemini).
+---
 
-## 🚀 Features
-- **Voice Input:** Dictate text directly using your microphone.
-- **Smart Editing:** The AI automatically corrects mistakes, removes filler words (like "um" and "uh"), and fixes punctuation.
-- **Translation & Tone Adjustment:** Translates the text into your chosen language and adapts the style (Official, Friendly, Poetic, etc.).
-- **Text-to-Speech (TTS):** Reads the translated text out loud with an intelligent voice selection based on the language.
-- **Customization:** 4 stylish themes, frosted glassmorphism UI, and modern Lucide icons.
+## 🎯 Custom Tones & Prompts Suite
 
-## 🛠 Tech Stack
-- React (Vite)
-- TypeScript
-- CSS Variables + CSS Modules
-- Google Gemini 3.1 Flash Lite (for fast generation)
-- Web Speech API
-- Lucide React (Icons)
+Smart Type includes a curated suite of specialized AI system instructions for developer productivity, software engineering, and prompt design:
 
-## 📦 Local Installation & Setup
+| № | Tone Name | Purpose & Output Format |
+|---|---|---|
+| 1 | **`Bug Fix & Refactoring Assistant`** | **Code Remediation & Diagnosis**. Accepts broken code or runtime error logs. Returns:<br>• `### 🔍 Bug Cause`: 1-sentence root cause.<br>• `### 🛠️ Fixed Code`: Clean, production-ready, strictly typed refactored code.<br>• `### 💡 Why It Works`: 2 bullet points explaining the fix. |
+| 2 | **`Architecture Decision Record (ADR)`** | **Technical Specification Generator**. Converts unstructured voice notes into a formal Architecture Decision Record:<br>• `# ADR: Title`<br>• `## 1. Context & Problem Statement`<br>• `## 2. Decision Outcome & Architecture`<br>• `## 3. Trade-Offs & Consequences (Pros & Cons)` |
+| 3 | **`Silicon Valley Native English Refiner`** | **Professional Tech English Editor**. Refines voice dictation or text into articulate, native-level Silicon Valley engineering English suitable for PR reviews, Jira tickets, and Slack discussions. |
+| 4 | **`CLI Command & Regex Wizard`** | **Terminal Command Generator**. Converts natural language requests into exact, working **PowerShell / Bash / Git CLI / Docker** commands or Regular Expressions with flag breakdowns. |
+| 5 | **`Executive Summary & Action Items`** | **Meeting Notes Summarizer**. Converts audio memos into executive summaries:<br>• `🎯 Main Goal`<br>• `📌 Key Decisions Made`<br>• `✅ Actionable TODO List` |
+| 6 | **`IT Interview Answer (with Code Examples)`** | **Senior Tech Interview Prep**. Answers technical prompts across any domain (Frontend, Backend, DevOps, DB, System Design) directly without conversational fluff, including code examples and trade-offs. |
+| 7 | **`StackOverflow Answer`** | **Top StackOverflow Contributor Format**. Starts directly with working code (TL;DR Solution), followed by `Why it works` points and edge case warnings. |
+| 8 | **`Nano Banana Image Prompt`** | **AI Image Generation Prompt Architect**. Formats English prompts line-by-line (`Subject/Object`, `Style`, `Color Palette`, `Texture/Material`, `Camera Angle`, `Lighting`, `Technical Details`) without square brackets `[...]`. |
+| 9 | **`Phonetic Transliteration`** | **Phonetic Script Translator**. Produces two parts: 1) Phonetic transliteration using native alphabet, 2) Standard translation below as `[Original: ...]`. |
+| 10 | **`Lite IT Slang`** | **Natural Tech Jargon Preservation**. Translates text naturally while preserving common engineering slang (fix, deploy, build, screenshot). |
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/smart-type.git
-   cd smart-type
-   ```
+---
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## ⚡ Models & Hybrid Audio Pipeline
 
-3. Run the project:
-   ```bash
-   npm run dev
-   ```
+- **`Gemini 3.1 Flash Lite`** — Ultra-fast single-pass dictation (~400ms latency).
+- **`Gemini 3.5 Flash Lite`** — High-accuracy single-pass dictation.
+- **`Gemini 3.5 Flash`** — Two-stage pipeline (STT: `3.1 Lite` $\rightarrow$ Pro: `3.5 Flash`).
+- **`Gemini 3.6 Flash (STT: 3.5 Lite)`** — Two-stage pipeline (STT: `3.5 Lite` $\rightarrow$ Pro: `3.6 Flash`).
+- **`Gemini 3.6 Flash (STT: 3.1 Lite)`** — Two-stage pipeline (STT: `3.1 Lite` $\rightarrow$ Pro: `3.6 Flash`).
 
-4. Open the app in your browser and enter your **Google Gemini API Key** directly in the input field. The key is securely saved in your browser's local storage.
+---
 
-## 🚀 Deploying to Vercel
+## 🛡️ Reliability & Resilience
 
-This project is 100% ready to be deployed on Vercel without any extra configuration.
-1. Push your code to your GitHub repository.
-2. Go to [Vercel](https://vercel.com/) and import your repository.
-3. Click **Deploy**.
-4. Once deployed, open the live link and paste your **Google Gemini API Key** in the input field.
-
-Done! Your app is now live and fully operational.
-
+- **60s AbortController Network Timeout** for handling long audio dictations (up to 3 minutes).
+- **Automatic Retries (3 attempts)** for HTTP 503 / 429 High Demand server states.
+- **Structured JSON Output (`responseSchema`)** ensuring 100% parse safety.
