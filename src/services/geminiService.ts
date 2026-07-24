@@ -1,4 +1,4 @@
-import { AI_MODELS } from "../config";
+import { getModelPair } from "../config";
 
 export interface TranslationResult {
   original: string;
@@ -23,6 +23,13 @@ export const GEMINI_RESPONSE_SCHEMA = {
     },
   },
   required: ["original", "translated", "languageCode"],
+};
+
+export const hasEmojiTrigger = (tone: string): boolean => {
+  if (!tone) return false;
+  const containsKeyword = /emoji|expressive/i.test(tone);
+  const containsPictographic = /\p{Extended_Pictographic}/u.test(tone);
+  return containsKeyword || containsPictographic;
 };
 
 export const resolveTone = (tone: string): string => {
@@ -68,7 +75,15 @@ STRICT STRUCTURE:
 - ✅ Actionable TODO List (with clear next steps)`;
   }
   if (tone === "Phonetic Transliteration") {
-    return "Phonetic Transliteration (Translate the text into the target language. Your output MUST contain TWO parts: 1) Phonetic transliteration written strictly using the alphabet/script of the user's native or source language (e.g. if native script is Ukrainian/Cyrillic and target is English: 'май хоум'). 2) Below it on a new line, the exact original translation written in standard script of the target language, formatted as '[Original: ...]'. Example:\nмай хоум\n[Original: my home])";
+    return `Phonetic Transliteration Mode:
+Perform the translation using a strict two-step pipeline:
+1. Translate the entire source sentence fully and accurately into the target language.
+2. Convert that exact translated sentence phonetically into the UKRAINIAN Cyrillic script.
+CRITICAL ALPHABET RULE: Use strictly UKRAINIAN Cyrillic letters (e.g., 'е', 'є', 'и', 'і', 'ї'). Do NOT use Russian letters like 'э', 'ы', 'ъ'. (Example: write 'вомень' NOT 'вомэнь').
+
+STRICT TWO-LINE FORMAT FOR THE TRANSLATED FIELD (NO SQUARE BRACKETS):
+Line 1: Standard translation in target language script (e.g. "My house is your house." or "你好")
+Line 2: Exact phonetic transliteration of Line 1 in UKRAINIAN Cyrillic script (e.g. "Май хаус із йор хаус." or "Сяньцзай вомень лай цзяньча ися чжунвень.")`;
   }
   if (tone === "Lite IT Slang") {
     return "Lite IT Slang (write in a natural, neutral tone. Keep and preserve common IT jargon, technical slang, and anglicisms if they are present in the source text, without translating them to overly formal dictionary words of the target language. For example, if translating to Ukrainian/Polish, keep terms like build/deploy/fix/screenshot transliterated naturally, but do NOT inject new slang if it wasn't in the original text.)";
@@ -112,6 +127,42 @@ STRICT RULES FOR YOUR ANSWER:
 4. If applicable, add a short "Note:" highlighting edge cases, performance tips, or common pitfalls.`;
   }
   return tone;
+};
+
+export const buildSystemPrompt = (
+  isAudio: boolean,
+  isQaMode: boolean,
+  targetLanguage: string,
+  tone: string
+): string => {
+  const resolvedTone = resolveTone(tone);
+  const emojiEnabled = hasEmojiTrigger(tone);
+
+  const mediaType = isAudio ? "an audio recording" : "a text";
+  const emojiRule = (isAudio && emojiEnabled)
+    ? "\n4. EXPRESSIVE EMOJI RULE: The user selected an emotional/emoji tone. Listen to the voice tone and audio cues carefully. If laughter, giggling, crying, anger, excitement, or strong emotion is detected in the audio, insert appropriate matching Unicode emojis reflecting the exact emotion into the translated text. Do NOT spam or over-use emojis (use at most 1-2 subtle, natural emojis per response matching key emotional moments)."
+    : "";
+
+  const langDisambiguation = `CRITICAL LANGUAGE DISAMBIGUATION RULES:
+If the input is spoken or typed in Ukrainian, process it strictly using standard Ukrainian alphabet characters (і, ї, є, ґ). NEVER confuse Ukrainian speech/text with Russian or output Russian letters.`;
+
+  if (isQaMode) {
+    return `You are a knowledgeable AI assistant.
+You will be provided with ${mediaType} representing a question or prompt.
+${langDisambiguation}
+Your goal is to perform tasks and return the result strictly in JSON format:
+1. "original": Format and correct the user's question/prompt for grammar and clarity, removing filler words like 'umm', 'uh', stuttering, or unnecessary pauses, keeping its original language intact.
+2. "translated": ANSWER the question or fulfill the prompt in the target language (${targetLanguage}). You MUST apply the following tone/style to your answer: ${resolvedTone}. Do NOT just translate the question; provide the actual ANSWER.${emojiRule}
+3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).`;
+  }
+
+  return `You are a professional translator and editor.
+You will be provided with ${mediaType}.
+${langDisambiguation}
+Your goal is to perform two tasks and return the result strictly in JSON format:
+1. "original": Perfectly format and correct the text (remove filler words like 'umm', 'uh', stuttering, unnecessary pauses, fix minor errors, and add proper punctuation), while keeping the original language intact. This text MUST remain in a strictly NEUTRAL tone.
+2. "translated": Translate this text into the target language: ${targetLanguage}. You MUST apply the following tone/style to the translated text: ${resolvedTone}.${emojiRule}
+3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).`;
 };
 
 export const parseFlexibleJson = (text: string): TranslationResult => {
@@ -215,30 +266,11 @@ export const processTextRequest = async (
   aiModel: string,
   apiKey: string
 ): Promise<TranslationResult> => {
-  const resolvedTone = resolveTone(tone);
+  const { proModelId } = getModelPair(aiModel);
 
-  let modelName = aiModel || "gemini-3.1-flash-lite";
-  if (modelName === "pro" || modelName === "gemini-3.6-flash-stt31") modelName = "gemini-3.6-flash";
-  if (modelName === "lite") modelName = "gemini-3.1-flash-lite";
-
-  console.log(`🤖 [SmartType Web] Text processing model: ${modelName}`);
-  const url = getGeminiUrl(modelName, apiKey);
-
-  const standardPrompt = `You are a professional translator and editor.
-You will be provided with a text.
-Your goal is to perform two tasks and return the result in JSON format:
-1. "original": Perfectly format and correct the text (remove filler words like 'umm', 'uh', unnecessary pauses, fix minor errors, and add proper punctuation), while keeping the original language. This text MUST remain in a strictly NEUTRAL tone (do not change the style or add any new words).
-2. "translated": Translate this text into the target language: ${targetLanguage}. You MUST apply the following tone/style to the translated text: ${resolvedTone}.
-3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).`;
-
-  const qaPrompt = `You are a knowledgeable AI assistant.
-You will be provided with a text representing a question or prompt.
-Your goal is to perform two tasks and return the result in JSON format:
-1. "original": Format and correct the user's question/prompt for grammar and clarity, keeping its original language.
-2. "translated": ANSWER the question or fulfill the prompt in the target language (${targetLanguage}). You MUST apply the following tone/style to your answer: ${resolvedTone}. Do NOT just translate the question; provide the actual ANSWER.
-3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).`;
-
-  const systemPrompt = isQaMode ? qaPrompt : standardPrompt;
+  console.log(`🤖 [SmartType Web] Text processing model: ${proModelId}`);
+  const url = getGeminiUrl(proModelId, apiKey);
+  const systemPrompt = buildSystemPrompt(false, isQaMode, targetLanguage, tone);
 
   const payload = {
     contents: [
@@ -268,31 +300,11 @@ export const processAudioRequest = async (
   onSttComplete?: (sttResult: TranslationResult) => void
 ): Promise<TranslationResult> => {
   const base64data = await blobToBase64(audioBlob);
+  const { sttModelId, proModelId, isLiteOnly } = getModelPair(aiModel);
 
-  let selectedModelId = aiModel || "gemini-3.1-flash-lite";
-  if (selectedModelId === "pro") selectedModelId = "gemini-3.6-flash";
-  if (selectedModelId === "lite") selectedModelId = "gemini-3.1-flash-lite";
+  console.log(`🎙️ [SmartType Web] Audio dictation initiated (Model Pair: STT=${sttModelId}, Pro=${proModelId})`);
 
-  const matchedModel = AI_MODELS.find((m) => m.id === selectedModelId);
-  const isLite = matchedModel ? matchedModel.type === "lite" : selectedModelId.endsWith("-lite");
-
-  console.log(`🎙️ [SmartType Web] Audio dictation initiated (Target model: ${selectedModelId})`);
-
-  if (!isLite) {
-    let sttModelId = "gemini-3.1-flash-lite";
-    let proModelId = selectedModelId;
-
-    if (selectedModelId === "gemini-3.6-flash") {
-      sttModelId = "gemini-3.5-flash-lite";
-      proModelId = "gemini-3.6-flash";
-    } else if (selectedModelId === "gemini-3.6-flash-stt31") {
-      sttModelId = "gemini-3.1-flash-lite";
-      proModelId = "gemini-3.6-flash";
-    } else if (selectedModelId === "gemini-3.5-flash") {
-      sttModelId = "gemini-3.1-flash-lite";
-      proModelId = "gemini-3.5-flash";
-    }
-
+  if (!isLiteOnly) {
     console.log(`  ├─ ⚡ Stage 1 (STT): Transcribing audio using ${sttModelId}...`);
     const liteUrl = getGeminiUrl(sttModelId, apiKey);
     const sttPrompt = `You are an expert speech-to-text transcriber with deep proficiency in Ukrainian, English, and global languages.
@@ -385,24 +397,8 @@ CRITICAL LANGUAGE DISAMBIGUATION RULES:
     return sttResult;
   }
 
-  const resolvedTone = resolveTone(tone);
-  const url = getGeminiUrl(selectedModelId, apiKey);
-
-  const standardAudioPrompt = `You are a professional translator and editor with expert fluency in Ukrainian, English, and global languages. 
-You will be provided with an audio recording.
-CRITICAL LANGUAGE DISAMBIGUATION RULES:
-1. "original": Transcribe the exact original language spoken. If the user speaks Ukrainian, transcribe it strictly in Ukrainian using standard Ukrainian alphabet characters (і, ї, є, ґ). NEVER confuse Ukrainian speech with Russian or output Russian letters. Format the text cleanly (remove filler words, unnecessary pauses, fix minor errors, and add proper punctuation), keeping the original language strictly intact in a NEUTRAL tone.
-2. "translated": Translate this text into the target language: ${targetLanguage}. You MUST apply the following tone/style to the translated text: ${resolvedTone}.
-3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).`;
-
-  const qaAudioPrompt = `You are a knowledgeable AI assistant with expert fluency in Ukrainian, English, and global languages.
-You will be provided with an audio recording representing a question or prompt.
-CRITICAL LANGUAGE DISAMBIGUATION RULES:
-1. "original": Transcribe the exact original language spoken. If the user speaks Ukrainian, transcribe it strictly in Ukrainian using standard Ukrainian alphabet characters (і, ї, є, ґ). NEVER confuse Ukrainian speech with Russian or output Russian letters. Format and correct the user's question/prompt for grammar and clarity, keeping its original language.
-2. "translated": ANSWER the question or fulfill the prompt in the target language (${targetLanguage}). You MUST apply the following tone/style to your answer: ${resolvedTone}. Do NOT just translate the question; provide the actual ANSWER.
-3. "languageCode": Determine the standard language code (e.g., "uk-UA", "en-US", "pl-PL", "de-DE") for the target language (${targetLanguage}).`;
-
-  const systemPrompt = isQaMode ? qaAudioPrompt : standardAudioPrompt;
+  const url = getGeminiUrl(sttModelId, apiKey);
+  const systemPrompt = buildSystemPrompt(true, isQaMode, targetLanguage, tone);
 
   const payload = {
     contents: [

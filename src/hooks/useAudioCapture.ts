@@ -97,16 +97,28 @@ export const useAudioCapture = () => {
 
   const startMonitoring = async () => {
     try {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
+
+      if (audioContextRef.current) {
+        await audioContextRef.current.close().catch(() => {});
+        audioContextRef.current = null;
+      }
+
       const constraints = selectedDeviceId ? { audio: { deviceId: { exact: selectedDeviceId } } } : { audio: true };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
 
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      audioContextRef.current = new AudioCtx();
+      
       const source = audioContextRef.current.createMediaStreamSource(stream);
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 256;
@@ -185,10 +197,12 @@ export const useAudioCapture = () => {
         return;
       }
 
-      mediaRecorderRef.current.onstop = () => {
-        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        
+      let isResolved = false;
+
+      const cleanupAndResolve = (blob: Blob | null) => {
+        if (isResolved) return;
+        isResolved = true;
+
         if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
         if (audioContextRef.current) {
           audioContextRef.current.close().catch(() => {});
@@ -202,10 +216,32 @@ export const useAudioCapture = () => {
         }
         setIsMonitoring(false);
         setState((prev) => ({ ...prev, isCapturing: false }));
-        resolve(audioBlob);
+        resolve(blob);
       };
 
-      mediaRecorderRef.current.stop();
+      // Safety timeout: resolve if onstop doesn't fire within 2.5s
+      const safetyTimer = setTimeout(() => {
+        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+        const audioBlob = audioChunksRef.current.length > 0
+          ? new Blob(audioChunksRef.current, { type: mimeType })
+          : null;
+        cleanupAndResolve(audioBlob);
+      }, 2500);
+
+      mediaRecorderRef.current.onstop = () => {
+        clearTimeout(safetyTimer);
+        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        cleanupAndResolve(audioBlob);
+      };
+
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (err) {
+        console.error("Error stopping MediaRecorder:", err);
+        clearTimeout(safetyTimer);
+        cleanupAndResolve(null);
+      }
     });
   };
 

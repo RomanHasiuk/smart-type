@@ -2,6 +2,9 @@
 
 Fast, modern web-based AI dictation and text transformation suite powered by React, Vite, TypeScript, and Google Gemini API (3.6 Flash / 3.5 Flash / 3.1 Flash Lite).
 
+🌐 **Live Web Application:** [https://smart-type-five.vercel.app/](https://smart-type-five.vercel.app/)  
+📖 **User Guide:** [USER_GUIDE.md](USER_GUIDE.md)
+
 ---
 
 ## 🎯 Custom Tones & Prompts Suite
@@ -18,8 +21,9 @@ Smart Type includes a curated suite of specialized AI system instructions for de
 | 6 | **`IT Interview Answer (with Code Examples)`** | **Senior Tech Interview Prep**. Answers technical prompts across any domain (Frontend, Backend, DevOps, DB, System Design) directly without conversational fluff, including code examples and trade-offs. |
 | 7 | **`StackOverflow Answer`** | **Top StackOverflow Contributor Format**. Starts directly with working code (TL;DR Solution), followed by `Why it works` points and edge case warnings. |
 | 8 | **`Nano Banana Image Prompt`** | **AI Image Generation Prompt Architect**. Formats English prompts line-by-line (`Subject/Object`, `Style`, `Color Palette`, `Texture/Material`, `Camera Angle`, `Lighting`, `Technical Details`) without square brackets `[...]`. |
-| 9 | **`Phonetic Transliteration`** | **Phonetic Script Translator**. Produces two parts: 1) Phonetic transliteration using native alphabet, 2) Standard translation below as `[Original: ...]`. |
+| 9 | **`Phonetic Transliteration`** | **Phonetic Script Translator**. Uses strict 2-step pipeline with Ukrainian Cyrillic alphabet (no Russian letters like э, ы, ъ):<br>• Line 1: Standard translation in target script.<br>• Line 2: Full phonetic transliteration in Ukrainian Cyrillic. |
 | 10 | **`Lite IT Slang`** | **Natural Tech Jargon Preservation**. Translates text naturally while preserving common engineering slang (fix, deploy, build, screenshot). |
+| 11 | **`Expressive Emoji Trigger`** | **Voice Emotion & Laughter Detection**. Activated dynamically when any tone includes an emoji icon (e.g. `Casual 🙂`, `Friendly 👍`, `Lite IT Slang ❤️`) or keyword `Emoji`. Gemini listens to voice tone and automatically inserts appropriate emojis (`😂`, `😅`, `🤔`, `😮`) upon detecting laughter or strong emotion. |
 
 ---
 

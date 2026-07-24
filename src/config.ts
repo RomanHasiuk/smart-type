@@ -80,6 +80,32 @@ export const AI_MODELS: AIModelOption[] = [
   { id: "gemini-3.6-flash-stt31", label: "Gemini 3.6 Flash (STT: 3.1 Lite)", type: "pro" },
 ];
 
+export interface ModelPair {
+  sttModelId: string;
+  proModelId: string;
+  isLiteOnly: boolean;
+}
+
+export const MODEL_CONFIGS: Record<string, ModelPair> = {
+  "gemini-3.1-flash-lite": { sttModelId: "gemini-3.1-flash-lite", proModelId: "gemini-3.1-flash-lite", isLiteOnly: true },
+  "gemini-3.5-flash-lite": { sttModelId: "gemini-3.5-flash-lite", proModelId: "gemini-3.5-flash-lite", isLiteOnly: true },
+  "gemini-3.5-flash": { sttModelId: "gemini-3.1-flash-lite", proModelId: "gemini-3.5-flash", isLiteOnly: false },
+  "gemini-3.6-flash": { sttModelId: "gemini-3.5-flash-lite", proModelId: "gemini-3.6-flash", isLiteOnly: false },
+  "gemini-3.6-flash-stt31": { sttModelId: "gemini-3.1-flash-lite", proModelId: "gemini-3.6-flash", isLiteOnly: false },
+};
+
+export const getModelPair = (aiModel: string): ModelPair => {
+  let modelId = aiModel || DEFAULT_MODEL;
+  if (modelId === "pro") modelId = "gemini-3.6-flash";
+  if (modelId === "lite") modelId = "gemini-3.1-flash-lite";
+
+  return MODEL_CONFIGS[modelId] || {
+    sttModelId: "gemini-3.1-flash-lite",
+    proModelId: modelId,
+    isLiteOnly: modelId.endsWith("-lite"),
+  };
+};
+
 export const DEFAULT_LANGUAGE = "Ukrainian";
 export const DEFAULT_THEME = "system";
 export const DEFAULT_MODEL = "gemini-3.1-flash-lite";
